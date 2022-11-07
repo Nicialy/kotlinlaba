@@ -1,0 +1,24 @@
+{% extends "./layout.peb" %}
+
+{% block content %}
+<div class="grid-x grid-padding-x">
+    <div class="medium-12 cell">
+        <div class="callout">
+            <div class="grid-x grid-padding-x">
+                <div class="medium-7 cell">
+            <h4>{{ model.ship.name }}</h4>
+            <img width="800px" height="1500px" src="/photo/{{ model.ship.url }}"></img>
+                </div>
+                <div class="medium-5 cell">
+                    <div class="grid-container">
+            <p>Описание: {{ model.ship.description }}</p>
+            <p>Количество свободных мест: {{ model.ship.countPlace }}
+            <p>Статус Корабля: {{ model.ship.status }}</p>
+        </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

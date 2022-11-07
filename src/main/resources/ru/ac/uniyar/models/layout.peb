@@ -1,0 +1,88 @@
+<!doctype html>
+<html class="no-js" lang="ru" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шторм</title>
+    <link rel="stylesheet" href="/css/foundation.css">
+    <link rel="stylesheet" href="/css/app.css">
+  </head>
+<body>
+
+<div>
+<div class="top-bar">
+  <div class="top-bar-left">
+    <ul class="dropdown menu" data-dropdown-menu>
+
+      <li><a href="/">Главная</a></li>
+      <li><a href="/travel/all">Путешествия</a>
+      {% if model.currentUser is not null and model.num[model.currentUser.role] >=5%}
+        <ul class="menu vertical">
+          <li><a href="/travel/create">Добавить Путешествие</a></li>
+        </ul>
+      </li>
+         {% else %}
+      </li>
+      {% endif %}
+      <li><a href="/ship/all">Наши корабли</a>
+      {% if model.currentUser is not null and model.num[model.currentUser.role] >=5%}
+            <ul class="menu vertical">
+              <li><a href="/ship/create">Добавить Корабль</a></li>
+            </ul>
+      </li>
+      {% else %}
+      </li>
+      {% endif %}
+        {% if model.currentUser is not null%}
+            {%  if model.num[model.currentUser.role] >=6 %}
+                  <li><a href="/bid/all">Заявки</a>
+                    <ul class="menu vertical">
+                      <li><a href="/bid/create">Создать заявку</a></li>
+                    </ul>
+                    </li>
+            </li>
+                {% else %}
+                <li><a href="/bid/create">Создать заявку</a></li>
+      {% endif %}
+            {% endif %}
+        {% if model.currentUser is not null and model.num[model.currentUser.role] >=2%}
+            <li><a href="/invitation/my">Приглашения</a>
+        {%  if model.num[model.currentUser.role] >=5%}
+            <ul class="menu vertical">
+                <li><a href="/invitation/create">Пригласить в команду</a></li>
+            </ul>
+        </li>
+            {% else %}
+            </li>
+        {% endif %}
+            {% endif %}
+      <div class="top-bar-right">
+      <ul class="menu">
+            {% if model.currentUser is not null%}
+                <li><a href="/logout">{{ model.currentUser.name }}</a></li>
+             {% else %}
+            <li><a href="/login">Войти</a></li>
+             <li><a href="/registration">Регистрация</a></li>
+             {% endif %}
+      </ul>
+  </div>
+
+    </ul>
+  </div>
+</div>
+{% block content %}
+Нет содержимого
+{% endblock %}
+
+
+
+
+</div>
+    <script src="/js/vendor/jquery.js"></script>
+    <script src="/js/vendor/what-input.js"></script>
+    <script src="/js/vendor/foundation.js"></script>
+    <script src="/js/app.js"></script>
+
+</body>
+</html>

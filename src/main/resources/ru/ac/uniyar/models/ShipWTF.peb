@@ -1,0 +1,45 @@
+{% extends "./layout.peb" %}
+
+{% block content %}
+    {% if model.myshipsList is not empty %}
+     <p>Количество свободных мест: {{model.myshipsList.size}}
+        {% endif %}
+        {% for ship in model.myshipsList %}
+        <div class="grid-x grid-padding-x">
+            <div class="medium-12 cell">
+                <div class="callout">
+                    <h4>
+                </h4>
+                    <img width="200px" height="500px" src="/photo/{{ship.url}}"></img>
+                    <p>Описание: {{ship.description}}</p>
+                    <p>Количество свободных мест: {{ ship.count }}
+                    <p>{{ship.status}}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+<nav aria-label="Pagination">
+    <ul class="pagination text-center">
+        {% if model.pageable.page == 1 %}
+            <li class="pagination-previous disabled">Previous</li>
+            {% else %}
+            <li class="pagination-previous active"><a href="?page={{ model.pageable.page - 1}}">Previous</a></li>
+        {% endif %}
+         {% if model.pageable.maxpage <=10%}
+             {% for page in range(1,model.pageable.maxpage)%}
+                 {% if model.pageable.page == page%}
+                    <li class="current"><span class="show-for-sr">You're on page</span> {{ page }}</li>
+                 {%else%}
+                 <li><a href="?page={{ page }}" aria-label="Page {{ page }}">{{ page }}</a></li>
+                 {% endif %}
+             {%endfor %}
+         {% endif %}
+        {% if model.pageable.page == model.pageable.maxpage %}
+            <li class="pagination-next disabled">Next</li>
+            {% else %}
+            <li class="pagination-next"><a href="?page={{ model.pageable.page + 1 }}" aria-label="Next page">Next</a></li>
+        {% endif%}
+
+    </ul>
+</nav>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "./layout.peb" %}
+
+    {% block content %}
+
+        {% if model.form.errors is not empty %}
+        <div class="grid-x grid-padding-x">
+            <div class="medium-12 cell warning">
+                <ul>
+                    {% for error in model.form.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+    <form method="post">
+
+    <div class="grid-x grid-padding-x">
+        {{ model.form.errors }}
+            <div class="medium-12 cell">
+                <label>
+                    Название
+                    <input name="name" type="text"
+                        value="{{ model.form.fields["name"] | first }}">
+                </label>
+            </div>
+            <div class="medium-12 cell">
+                <label>
+                    Описание
+                    <textarea name="description" type="text">{{ model.form.fields["description"] | first }}</textarea>
+                </label>
+            </div>
+            <div class="medium-12 cell">
+                <label>
+                    Выбор свободного корабля
+                    <select name="ship_id">
+                        {% for ship in model.ships%}
+                        <option value={{ ship.id }}> {{ ship.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+                <div class="medium-6 cell">
+                    <label>
+                        Дата начала
+                        <input name="date_start" type="date"
+                            value="{{ model.form.fields["date_start"] | first }}">
+                    </label>
+                </div>
+                <div class="medium-6 cell">
+                    <label>
+                        Дата окончания
+                        <input name="date_end" type="date"
+                            value="{{ model.form.fields["date_end"] | first }}">
+                    </label>
+                </div>
+
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-12 cell align-center">
+                    <input type="submit" value="Добавить Путешествие" class="button">
+                <a href="/">Назад</a>
+            </div>
+
+</form>
+
+
+{% endblock %}

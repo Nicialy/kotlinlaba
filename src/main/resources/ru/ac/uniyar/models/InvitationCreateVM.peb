@@ -1,0 +1,117 @@
+{% extends "./layout.peb" %}
+
+    {% macro tabspanel(id, users, role, travel_id) %}
+        <div class="tabs-panel" id="{{ id }}">
+        {% for user in users %}
+
+            {% if user.role ==  role  %}
+                <div class="grid-container">
+                    <div class="cell medium-4">
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">
+                                <p>{{ user.name }} {{ user.surname }} {{ user.middle_name }} </p>
+                            </div>
+                            <div class="cell medium-2">
+                                <form method="post" action="/invitation/{{ travel_id }}/create/{{ user.id }}" >
+                                    <button class="button tiny" type="submit">
+                                        <!-- Screen readers will see "close" -->
+                                        <span class="show-for-sr">Close</span>
+                                        <!-- Visual users will see the X, but not the "Close" text -->
+                                        <span aria-hidden="true"><i class="fi-x">Пригласить</i></span>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        {% endfor %}
+        </div>
+    {% endmacro %}
+
+    {% macro tabspanelinvite(id, invites, travel_id) %}
+    <div class="tabs-panel" id="{{ id }}">
+            {% for invite in invites %}
+                <div class="grid-container">
+                    <div class="cell medium-8">
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-6">
+                                <p>{{ invite.user_id.name }} {{ invite.user_id.surname }} {{ invite.user_id.middle_name }} {{ invite.status }}</p>
+                            </div>
+                            <div class="cell medium-2">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+    </div>
+    {% endmacro %}
+{% block content %}
+<div class="grid-x grid-padding-x">
+    <div class="medium-12 cell">
+        <div class="callout">
+            <div class="grid-x grid-padding-x">
+                <div class="medium-5 cell">
+                    <h4> {{  model.crews[0].travel_id.name }} </h4>
+                    <img width="200px" height="500px" src="/photo/{{model.crews[0].travel_id.ship_id.url}}"></img>
+                    <p>Описание: {{model.crews[0].travel_id.ship_id.description}}</p>
+                    <p>Количество свободных мест: {{ model.crews[0].travel_id.ship_id.countPlace }}
+                    <p>Стаутс путшествия : {{model.crews[0].travel_id.status}}</p>
+
+                </div>
+                <div class="medium-7 cell">
+                <div class="grid-container">
+                        <p> Экипаж:</p>
+                    <div class="grid-x grid-padding-x">
+                    {% for crew in model.crews %}
+                            <div class="medium-3 cell">
+                                {% if crew.user_id.role == "Администратор" %}
+                                         <p> Капитан: {{crew.user_id.name}} </p>
+                                {%else%}
+                                    <p>{{crew.user_id.role}}: {{crew.user_id.name}}</p>
+                                {% endif %}
+                            </div>
+                            <div class="medium-3 cell">
+                                {% if crew.user_id.role != "Администратор" and crew.user_id.role != "Капитан" %}
+                                <form method="post" action="/crew/delete/{{ crew.id }}">
+                                    <button class="button tiny" type="submit">
+                                        <!-- Screen readers will see "close" -->
+                                        <span class="show-for-sr">Close</span>
+                                        <!-- Visual users will see the X, but not the "Close" text -->
+                                        <span aria-hidden="true"><i class="fi-x">X</i></span>
+                                    </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="cell">
+
+            <ul class="tabs" data-active-collapse="true" data-tabs id="collapsing-tabs" print-hrefs="true">
+                <li class="tabs-title"><a href="#panel1c" print-hrefs="true">Капитаны</a></li>
+                <li class="tabs-title is-active"><a href="#panel2c" print-hrefs="true">Боцманы</a></li>
+                <li class="tabs-title"><a href="#panel3c" print-hrefs="true">Повара</a></li>
+                <li class="tabs-title"><a href="#panel4c" print-hrefs="true">Матросы</a></li>
+                <li class="tabs-title"><a href="#panel5c" print-hrefs="true">Приглашенные</a></li>
+            </ul>
+
+            <div class="tabs-content" data-tabs-content="collapsing-tabs">
+                {{  tabspanel("panel1c",model.users,"Капитан", model.crews[0].travel_id.id)}}
+                {{  tabspanel("panel2c",model.users,"Боцман", model.crews[0].travel_id.id)}}
+                {{  tabspanel("panel3c",model.users,"Повар",model.crews[0].travel_id.id)}}
+                {{  tabspanel("panel4c",model.users,"Матрос", model.crews[0].travel_id.id)}}
+                {{  tabspanelinvite("panel5c", model.invitations, model.crews[0].travel_id.id)}}
+            </div>
+
+    </div>
+</div>
+{% endblock %}

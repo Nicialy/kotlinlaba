@@ -1,0 +1,33 @@
+{% extends "./layout.peb" %}
+
+{% block content %}
+
+<div class="grid-x grid-padding-x">
+    <div class="medium-12 cell">
+    {% if model.invitations.size() == 0%}
+        <p> Здесь пока ничего нет</p>
+    {% endif %}
+    {% for invite in model.invitations %}
+            <div class="grid-x grid-padding-x">
+                    <div class="callout">
+                            <p><a  href="travel/{{ invite.travel_id.id }}">Путешествие: {{ invite.travel_id.name }} </a></p>
+                            <p>Стаутс путшествия : {{invite.travel_id.status}}</p>
+                        </div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-2 cell">
+                    <form method="post" action="cancel/{{ invite.id }}">
+                        <input type="submit" value="Отказать" class="button alert">
+                    </form>
+                </div>
+                <div class="medium-2 cell">
+                    <form method="post" action="accept/{{  invite.id }}">
+                        <input type="submit" value="Принять" class="button">
+                    </form>
+                </div>
+            </div>
+    {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

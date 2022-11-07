@@ -1,0 +1,52 @@
+{% extends "./layout.peb" %}
+
+{% block content %}
+<div class="grid-x grid-padding-x">
+    <div class="medium-12 cell">
+        <div class="callout">
+            <div class="grid-x grid-padding-x">
+                <div class="medium-5 cell">
+                    <h4> {{  model.travel.first.name }} </h4>
+                    <img width="800px" height="1500px" src="/photo/{{model.travel.first.ship_id.url}}"></img>
+                    <p>Описание: {{model.travel.first.description}}</p>
+                    <p>Количество свободных мест: {{ model.travel.first.countPlace }}
+                    <p>Стаутс путшествия : {{model.travel.first.status}}</p>
+                    <p>Начало  {{ travel.first.date_start }}  Окончание  {{ travel.first.date_end }}  </p>
+                    <p><a href="/ship/{{ model.travel.first.ship_id.id}}">Подробнее о Корабле</a></p>
+                </div>
+                <div class="medium-7 cell">
+                    <div class="grid-container">
+                        <p> Экипаж:</p>
+                        <div class="grid-x grid-padding-x">
+                                {% for user in model.travel.second %}
+                                <div class="medium-3 cell">
+                                        {% if user.role == "Администратор" %}
+                                        <p> Капитан: {{user.name}} </p>
+                                        {%else%}
+                                        <p>{{user.role}}: {{user.name}} {{user.surname}} {{user.middle_name}}</p>
+                                        {% endif %}
+                                </div>
+                                <div class="medium-3 cell">
+
+                                </div>
+                                {% endfor %}
+                        </div>
+                    </div>{% if model.currentUser is not null and model.travel.first.status == "Открыто для набора посетителей" %}
+                    <form method="post" action="/visit/create/{{ travel.first.id }}">
+                        <input type="submit" value="Записаться" class="button">
+                    </form>
+                {% endif %}
+                    {% if model.currentUser is not null and model.num[model.currentUser.role] >=5 %}
+                        <div class="grid-x grid-padding-x">
+                            <div class="medium-2 cell">
+                                <a class="button" href="/invitation/{{ travel.first.id }}/create">Пригласить</a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

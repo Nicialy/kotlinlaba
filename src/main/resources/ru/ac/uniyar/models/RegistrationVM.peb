@@ -1,0 +1,68 @@
+{% extends "./layout.peb" %}
+
+{% block content %}
+
+    {% if model.form.errors is not empty %}
+        <div class="grid-x grid-padding-x">
+            <div class="medium-12 cell warning">
+                <ul>
+                    {% for error in model.form.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+{% endif %}
+
+<form method="post">
+    <div class="grid-x grid-padding-x">
+    <div class="medium-12 cell">
+         <label>
+            Ваш никнейм для входа
+            <input name="nickname" type="text"
+                value="{{ model.form.fields["nickname"] | first }}">
+        </label>
+    </div>
+    <div class="medium-12 cell">
+        <label>
+            Имя
+            <input name="name" type="text"
+                value="{{ model.form.fields["name"] | first }}">
+        </label>
+    </div>
+    <div class="medium-12 cell">
+        <label>
+            Фамилия
+            <input name="surname" type="text"
+                value="{{ model.form.fields["surname"] | first }}">
+        </label>
+    </div>
+    <div class="medium-12 cell">
+        <label>
+            Отчество
+            <input name="middlename" type="text"
+                value="{{ model.form.fields["middlename"] | first }}">
+        </label>
+    </div>
+    <div class="medium-6 cell">
+        <label>
+            Пароль
+            <input name="passwordOne" type="password"
+                value="{{ model.form.fields["passwordOne"] | first }}">
+        </label>
+    </div>
+    <div class="medium-6 cell">
+        <label>
+            Повтор пароля
+            <input name="passwordTwo" type="password"
+                value="{{ model.form.fields["passwordTwo"] | first }}">
+        </label>
+    </div>|
+
+</div>
+<div class="grid-x grid-padding-x">
+    <div class="medium-12 cell align-center">
+        <input type="submit" value="Зарегистрироваться" class="button">
+    <a href="/">Назад</a>
+</div>
+{% endblock %}

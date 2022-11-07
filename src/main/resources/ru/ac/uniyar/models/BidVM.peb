@@ -1,0 +1,73 @@
+{% extends "./layout.peb" %}
+    {% macro input(type="text", name, placeholder="", form) %}
+    <input
+            type="{{ type }}"
+            name="{{ name }}"
+            placeholder="{{ placeholder }}"
+        {% if form.fields contains name %}
+            value="{{ form.fields[name] | first }}"
+        {% endif %}>
+    {% endmacro %}
+{% block content %}
+
+    {% if model.uri == "/bid/all" %}
+        {% for bid in model.bids %}
+    <div class="grid-x grid-padding-x">
+        <div class="medium-12 cell">
+            <div class="callout">
+                <h4>{{ bid.role }}</h4>
+                <p>Описание: {{ bid.description }}</p>
+                <p>Количество свободных мест: {{ bid.status }}
+                <p> {{ bid.user_id.name }}</p>
+            </div>
+            <div class="grid-x grid-padding-x">
+            <div class="medium-2 cell">
+            <form method="post" action="cancel/{{ bid.id }}">
+                <input type="submit" value="Отказать" class="button alert">
+            </form>
+            </div>
+                <div class="medium-2 cell">
+            <form method="post" action="accept/{{ bid.id }}">
+                <input type="submit" value="Принять" class="button">
+            </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            {% endfor %}
+
+    {% endif %}
+    {% if model.uri == "/bid/create" %}
+    <form method="post" >
+        <div class="grid-x grid-padding-x">
+            <div class="medium-6 cell">
+                <label>
+                    Роль которую хочу
+                    <select name="role" class="columns">
+                        <option value="Матрос">Матрос</option>
+                        <option value="Повар">Повар</option>
+                        <option value="Боцман">Боцман</option>
+                        <option value="Капитан">Капитан</option>
+                        <option value="Администратор">Администратор</option>
+                    </select>
+
+                </label>
+            <div class="medium-12 cell">
+                <label>
+                    Описание
+                    <textarea type="text"
+                              name="description" > {{ form.fields[name] | first }}</textarea>
+                </label>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-12 cell align-center">
+                    <input type="submit" value="Отправить" class="button">
+                </div>
+            </div>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+
+{% endblock %}

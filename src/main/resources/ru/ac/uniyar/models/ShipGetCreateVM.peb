@@ -1,0 +1,45 @@
+{% extends "./layout.peb" %}
+    {% macro input(type="text", name, placeholder="", form) %}
+            <input
+            type="{{ type }}"
+            name="{{ name }}"
+            placeholder="{{ placeholder }}"
+            {% if form.fields contains name %}
+                     value="{{ form.fields[name] | first }}"
+            {% endif %}>
+    {% endmacro %}
+
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    <div class="grid-x grid-padding-x">
+        <div class="medium-6 cell">
+            <label>
+                Имя
+                {{ input (name="name",form=model.form ) }}
+            </label>
+            <label>
+                Кол-во мест
+                {{  input (name="count",form=model.form,type ="number" ) }}
+            </label>
+        </div>
+        <div class="medium-12 cell">
+            <label>
+                Описание
+                <textarea name="description"> </textarea>
+            </label>
+        </div>
+        <div class="medium-6 cell">
+        <label>
+             <label for="exampleFileUpload" class="button">Upload File</label>
+               <input type="file" name="file" id="exampleFileUpload" class="show-for-sr">
+        </label>
+
+   </div>
+   <div class="grid-x grid-padding-x">
+    <div class="medium-12 cell align-center">
+        <input type="submit" value="Создать" class="button">
+</div>
+
+
+{% endblock %}
