@@ -1,5 +1,5 @@
 create type if not exists roles as enum ('Посетитель','Боцман','Матрос','Повар','Капитан','Администратор');
-create type  if not exists status_travel as enum ('Заполнено', 'Идет набор команды', 'В отплыве', 'Закончено', 'Открыто для набора посетителей');
+create type  if not exists status_travel as enum ('Заполнено', 'Идет набор команды', 'В отплыве', 'Закончено', 'Открыто для набора посетителей','Отменено');
 create type  if not exists state as enum ('Одобрено', 'Отказано', 'В ожидании');
 create type   if not exists status_invite as enum('Принял','Отказал','Не ответил');
 create  type  if not exists status_ship as enum ('Свободен','Зарезервирован');

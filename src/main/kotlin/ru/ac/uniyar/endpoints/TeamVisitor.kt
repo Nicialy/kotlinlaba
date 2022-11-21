@@ -12,22 +12,25 @@ import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
 import ru.ac.uniyar.database.DBUserEntity
-import ru.ac.uniyar.filters.roleBiggerFilter
+import ru.ac.uniyar.filters.roleFilter
 import ru.ac.uniyar.quires.TeamVisitorDB
 import ru.ac.uniyar.utils.BadRequestException
+import ru.ac.uniyar.utils.RolePermission
 
 fun teamVisitorRoute(
     currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    teamVis: TeamVisitorDB
+    teamVis: TeamVisitorDB,
+    currentRolePermissionLens: BiDiLens<Request, RolePermission>
 ): RoutingHttpHandler =
     routes(
-        "/create/{number}" bind Method.POST to roleBiggerFilter(currentUserLens, 1).then(TvCreate(currentUserLens, teamVis))
+        "/create/{number}" bind Method.POST to roleFilter(currentRolePermissionLens, "travel").then(TvCreate(currentUserLens, teamVis))
     )
 
 class TvCreate(
     private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
     private val teamVis: TeamVisitorDB
 ) : HttpHandler {
+
     override fun invoke(request: Request): Response {
         val travelId = request.path("number")?.toLong() ?: throw BadRequestException("Не число")
         val currentUser = currentUserLens(request)

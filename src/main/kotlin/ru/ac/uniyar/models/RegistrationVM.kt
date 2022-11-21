@@ -1,6 +1,6 @@
 package ru.ac.uniyar.models
 
 import org.http4k.lens.WebForm
-import ru.ac.uniyar.database.DBUserEntity
+import org.http4k.template.ViewModel
 
-class RegistrationVM(currentUser: DBUserEntity?, val form: WebForm = WebForm()) : AuthUserVM(currentUser)
+class RegistrationVM(val form: WebForm = WebForm()) : ViewModel

@@ -3,9 +3,12 @@ package ru.ac.uniyar.quires
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.insertAndGenerateKey
+import org.ktorm.entity.count
+import org.ktorm.entity.drop
 import org.ktorm.entity.filter
 import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.take
 import org.ktorm.entity.toList
 import ru.ac.uniyar.database.CrewTable
 import ru.ac.uniyar.database.DBCrewEntity
@@ -27,8 +30,8 @@ class InvitationDb(private val database: Database) {
     fun travelInvitation(travel_id: Long): List<DBInvitationEntity> {
         return database.sequenceOf(InvitationTable).filter { it.travel_id eq travel_id }.toList()
     }
-    fun myInvitation(user_id: Long): List<DBInvitationEntity> {
-        return database.sequenceOf(InvitationTable).filter { it.user_id eq user_id }.filter { it.status eq "Не ответил" }.toList()
+    fun myInvitation(user_id: Long, page: Int, size: Int, filter: String): List<DBInvitationEntity> {
+        return database.sequenceOf(InvitationTable).filter { it.user_id eq user_id }.filter { it.status eq filter }.drop((page - 1) * size).take(size).toList()
     }
     fun invitationDel(id: Long) {
         database.useTransaction {
@@ -71,11 +74,14 @@ class InvitationDb(private val database: Database) {
             invitation.flushChanges()
         }
     }
-    fun invitationCancel(id: Long) {
+    fun invitationCancel(id: Long, userId: Long) {
         database.useTransaction {
-            val invitation = database.sequenceOf(InvitationTable).find { it.id eq id } ?: throw NotFoundException("Не найдено")
+            val invitation = database.sequenceOf(InvitationTable).filter { it.user_id eq userId }.find { it.id eq id } ?: throw NotFoundException("Не найдено")
             invitation.status = "Отказал"
             invitation.flushChanges()
         }
+    }
+    fun getMyCountInvitation(user: DBUserEntity, status: String): Int {
+        return database.sequenceOf(InvitationTable).filter { it.user_id eq user.id }.filter { it.status eq status }.count()
     }
 }

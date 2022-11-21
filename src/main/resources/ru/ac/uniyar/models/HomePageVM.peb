@@ -1,6 +1,10 @@
 {% extends "./layout.peb" %}
 
+    {% block "post" %}
+    <title>🧐 Шторм</title>
+    {% endblock %}
 {% block content %}
+
 <div class="orbit" role="region" aria-label="Favorite Space Pictures" data-orbit>
     <div class="orbit-wrapper">
         <div class="orbit-controls">
@@ -34,6 +38,7 @@
             </li>
         </ul>
     </div>
+
     <nav class="orbit-bullets">
         <button class="is-active" data-slide="0">
             <span class="show-for-sr">First slide details.</span>
@@ -48,17 +53,21 @@
 <div class="css-3a8cdk e1q4d2a51">
 <div class="media-object">
 
+    <div class="grid-container">
   <div class="media-object-section">
+
     <h4>Корабельный-клуб в самое сердце Шторма</h4>
     <p>В тихой бухте, защищенной от суровых ветров и больших волн, располагается корабельный-клуб "Шторм".
 	Швартуясь у нас, вы в полной безопасности - в бухте всегда спокойно, а по ночам в зеркальной
 	глади воды отражаются звезды. </p>
   </div>
+  </div>
    <div class="media-object-section">
     <div class="thumbnail">
       <img src="http://koprino.club/images/yaht.svg">
     </div>
-  </div>
+   </div>
+
  </div>
 </div>
 </div>

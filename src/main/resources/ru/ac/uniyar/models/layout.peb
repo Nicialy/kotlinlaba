@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шторм</title>
+      {% block "post" %}
+    <title>🧐 Шторм</title>
+      {% endblock %}
+      <link rel="icon" type="image/png" href="/images/icons.png">
     <link rel="stylesheet" href="/css/foundation.css">
     <link rel="stylesheet" href="/css/app.css">
   </head>
@@ -17,7 +20,7 @@
 
       <li><a href="/">Главная</a></li>
       <li><a href="/travel/all">Путешествия</a>
-      {% if model.currentUser is not null and model.num[model.currentUser.role] >=5%}
+      {% if currentUser is not null and Permission.travelCreate%}
         <ul class="menu vertical">
           <li><a href="/travel/create">Добавить Путешествие</a></li>
         </ul>
@@ -26,7 +29,7 @@
       </li>
       {% endif %}
       <li><a href="/ship/all">Наши корабли</a>
-      {% if model.currentUser is not null and model.num[model.currentUser.role] >=5%}
+      {% if currentUser is not null and Permission.shipCreate %}
             <ul class="menu vertical">
               <li><a href="/ship/create">Добавить Корабль</a></li>
             </ul>
@@ -34,33 +37,20 @@
       {% else %}
       </li>
       {% endif %}
-        {% if model.currentUser is not null%}
-            {%  if model.num[model.currentUser.role] >=6 %}
-                  <li><a href="/bid/all">Заявки</a>
-                    <ul class="menu vertical">
-                      <li><a href="/bid/create">Создать заявку</a></li>
-                    </ul>
-                    </li>
-            </li>
+        {% if currentUser is not null%}
+            {%  if Permission.bidAccept %}
+                  <li><a href="/bid/all">Заявки</a></li>
                 {% else %}
                 <li><a href="/bid/create">Создать заявку</a></li>
       {% endif %}
             {% endif %}
-        {% if model.currentUser is not null and model.num[model.currentUser.role] >=2%}
-            <li><a href="/invitation/my">Приглашения</a>
-        {%  if model.num[model.currentUser.role] >=5%}
-            <ul class="menu vertical">
-                <li><a href="/invitation/create">Пригласить в команду</a></li>
-            </ul>
-        </li>
-            {% else %}
-            </li>
-        {% endif %}
+        {% if currentUser is not null and Permission.invitation %}
+            <li><a href="/invitation/my">Приглашения</a></li>
             {% endif %}
       <div class="top-bar-right">
       <ul class="menu">
-            {% if model.currentUser is not null%}
-                <li><a href="/logout">{{ model.currentUser.name }}</a></li>
+            {% if currentUser is not null%}
+                <li><a href="/logout">{{currentUser.name }}</a></li>
              {% else %}
             <li><a href="/login">Войти</a></li>
              <li><a href="/registration">Регистрация</a></li>

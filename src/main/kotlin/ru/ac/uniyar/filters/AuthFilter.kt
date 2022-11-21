@@ -12,9 +12,17 @@ import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
 import ru.ac.uniyar.database.DBUserEntity
 import ru.ac.uniyar.database.UsersTable
-
+import ru.ac.uniyar.utils.ADMIN
+import ru.ac.uniyar.utils.ANOUTHERROLE
+import ru.ac.uniyar.utils.BOATSWAIN
+import ru.ac.uniyar.utils.CAPTAIN
+import ru.ac.uniyar.utils.GUEST
+import ru.ac.uniyar.utils.RolePermission
+import ru.ac.uniyar.utils.VISITOR
+import java.util.*
 fun authFilter(
     currentUser: BiDiLens<Request, DBUserEntity?>,
+    currentUserPermission: BiDiLens<Request, RolePermission>,
     fetchUserWithToken: FetchUserWithToken,
     jwtTools: JwtTools
 ): Filter = Filter { next: HttpHandler ->
@@ -24,8 +32,8 @@ fun authFilter(
         }?.let { nickname ->
             fetchUserWithToken(nickname)
         }?.let { user ->
-            request.with(currentUser of user)
-        } ?: request
+            request.with(currentUser of user, currentUserPermission of mapRole[user.role]!!)
+        } ?: request.with(currentUserPermission of mapRole[null]!!)
         next(requestWithUser)
     }
 }
@@ -37,3 +45,13 @@ class FetchUserWithToken(
         return database.sequenceOf(UsersTable).find { it.nickname eq nickname }
     }
 }
+
+val mapRole = mapOf<String?, RolePermission>(
+    null to GUEST,
+    "Посетитель" to VISITOR,
+    "Матрос" to ANOUTHERROLE,
+    "Повар" to ANOUTHERROLE,
+    "Боцман" to BOATSWAIN,
+    "Капитан" to CAPTAIN,
+    "Администратор" to ADMIN
+)

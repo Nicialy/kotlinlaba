@@ -1,0 +1,47 @@
+{% extends "./layout.peb" %}
+    {% block "post" %}
+    <title>🧐 Создание заявки</title>
+    {% endblock %}
+        {% macro input(type="text", name, placeholder="", form) %}
+        <input
+                type="{{ type }}"
+                name="{{ name }}"
+                placeholder="{{ placeholder }}"
+            {% if form.fields contains name %}
+                value="{{ form.fields[name] | first }}"
+            {% endif %}>
+        {% endmacro %}
+{% block content %}
+
+
+<form method="post" >
+    <div class="grid-x grid-padding-x">
+        <div class="medium-6 cell">
+            <label>
+                Роль которую хочу
+                <select name="role" class="columns">
+                    <option value="Матрос">Матрос</option>
+                    <option value="Повар">Повар</option>
+                    <option value="Боцман">Боцман</option>
+                    <option value="Капитан">Капитан</option>
+                    <option value="Администратор">Администратор</option>
+                </select>
+
+            </label>
+            <div class="medium-12 cell">
+                <label>
+                    Описание
+                    <textarea type="text"
+                              name="description" > {{ form.fields[name] | first }}</textarea>
+                </label>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-12 cell align-center">
+                    <input type="submit" value="Отправить" class="button">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

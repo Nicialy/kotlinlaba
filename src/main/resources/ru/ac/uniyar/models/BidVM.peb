@@ -8,66 +8,103 @@
             value="{{ form.fields[name] | first }}"
         {% endif %}>
     {% endmacro %}
-{% block content %}
+    {% block "post" %}
+        {% if model.pageable.filter == "new" %}
+    <title>🌪 Заявки Штормистов!</title>
+        {% endif %}
+        {% if model.pageable.filter == "accept" %}
+        <title>🌪 Принятые Заявки</title>
+        {% endif %}
+        {% if model.pageable.filter == "cancel" %}
+        <title>🌪 Отказанные Заявки</title>
+        {% endif %}
 
-    {% if model.uri == "/bid/all" %}
+    {% endblock %}
+    {% macro myselect( name,enums,dict,filter )%}
+    <select name="{{ name }}" class="columns">
+        <option value="{{filter}}">{{ dict[filter] }}</option>
+        {%for enum in enums %}
+            {% if enum != filter  %}
+                <option value="{{enum}}">{{  dict[enum]}}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+
+    {% endmacro %}
+{% block content %}
+<div class="grid-x grid-padding-x">
+<div class="medium-3 cell">
+    <form method="get">
+        <label class="columns">Фильтрация</label>
+        {{ myselect("filter",["new","accept","cancel"],
+        {"new":"Новые","accept":"Принятые","cancel":"Отказанные"},
+        model.pageable.filter )}}
+        <div class="medium-6 cell">
+            <input type="submit" value="Применить" class="button">
+        </div>
+    </form>
+</div>
+</div>
         {% for bid in model.bids %}
     <div class="grid-x grid-padding-x">
         <div class="medium-12 cell">
             <div class="callout">
                 <h4>{{ bid.role }}</h4>
                 <p>Описание: {{ bid.description }}</p>
-                <p>Количество свободных мест: {{ bid.status }}
-                <p> {{ bid.user_id.name }}</p>
+                <p>Статус заявки: {{ bid.status }}
+                <p>Пользователь: {{ bid.user_id.name }}</p>
             </div>
+        {% if model.pageable.filter == "new" %}
             <div class="grid-x grid-padding-x">
-            <div class="medium-2 cell">
-            <form method="post" action="cancel/{{ bid.id }}">
-                <input type="submit" value="Отказать" class="button alert">
-            </form>
+                 <div class="medium-2 cell">
+
+                <form method="post" action="cancel/{{ bid.id }}">
+                    <input type="submit" value="Отказать" class="button alert">
+                </form>
             </div>
                 <div class="medium-2 cell">
-            <form method="post" action="accept/{{ bid.id }}">
-                <input type="submit" value="Принять" class="button">
-            </form>
+                    <form method="post" action="accept/{{ bid.id }}">
+                        <input type="submit" value="Принять" class="button">
+                    </form>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
-
             {% endfor %}
 
-    {% endif %}
-    {% if model.uri == "/bid/create" %}
-    <form method="post" >
-        <div class="grid-x grid-padding-x">
-            <div class="medium-6 cell">
-                <label>
-                    Роль которую хочу
-                    <select name="role" class="columns">
-                        <option value="Матрос">Матрос</option>
-                        <option value="Повар">Повар</option>
-                        <option value="Боцман">Боцман</option>
-                        <option value="Капитан">Капитан</option>
-                        <option value="Администратор">Администратор</option>
-                    </select>
+    {% if  model.bids.size() == 0 %}
+    <div class="grid-container">
+        <div class="medium-12 cell">
 
-                </label>
-            <div class="medium-12 cell">
-                <label>
-                    Описание
-                    <textarea type="text"
-                              name="description" > {{ form.fields[name] | first }}</textarea>
-                </label>
+            <h4>Здесь пока пусто</h4>
             </div>
-            <div class="grid-x grid-padding-x">
-                <div class="medium-12 cell align-center">
-                    <input type="submit" value="Отправить" class="button">
-                </div>
-            </div>
-            </div>
-        </div>
-    </form>
+    </div>
+    {% endif %}
+    {% if  model.bids.size() != 0 %}
+    <nav aria-label="Pagination">
+        <ul class="pagination text-center">
+            {% if model.pageable.page == 1 %}
+                <li class="pagination-previous disabled">Previous</li>
+                {% else %}
+                <li class="pagination-previous active"><a href="?filter={{ model.pageable.filter }}&&page={{ model.pageable.page - 1}}">Previous</a></li>
+            {% endif %}
+            {% if model.pageable.maxpage <=10%}
+                {% for page in range(1,model.pageable.maxpage)%}
+                    {% if model.pageable.page == page%}
+                        <li class="current"><span class="show-for-sr">You're on page</span> {{ page }}</li>
+                        {%else%}
+                        <li><a href="?filter={{ model.pageable.filter }}&&page={{ page }}" aria-label="Page {{ page }}">{{ page }}</a></li>
+                    {% endif %}
+                {%endfor %}
+            {% endif %}
+            {% if model.pageable.page == model.pageable.maxpage %}
+                <li class="pagination-next disabled">Next</li>
+                {% else %}
+                <li class="pagination-next"><a href="?filter={{ model.pageable.filter }}&&page={{ model.pageable.page + 1 }}" aria-label="Next page">Next</a></li>
+            {% endif%}
+        </ul>
+    </nav>
     {% endif %}
 
 {% endblock %}

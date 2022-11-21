@@ -1,5 +1,8 @@
 {% extends "./layout.peb" %}
 
+{% block "post" %}
+<title>🏝 Новое Путешествие</title>
+{% endblock %}
     {% block content %}
 
         {% if model.form.errors is not empty %}

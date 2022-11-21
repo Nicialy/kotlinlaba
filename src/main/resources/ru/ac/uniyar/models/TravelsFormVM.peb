@@ -1,9 +1,78 @@
 {% extends "./layout.peb" %}
+    {% block "post" %}
+        {% if model.invitations.size() != 0%}
+        {% if model.pageable.filter == "all" %}
+         <title>😍 Все Путешествия</title>
+        {% endif %}
+        {% if model.pageable.filter == "open" %}
+        <title>😍 Открытые Путешествия</title>
+        {% endif %}
+        {% if model.pageable.filter == "cancel" %}
+        <title>😱 Отмененные Путешествия</title>
+        {% endif %}
+            {% if model.pageable.filter == "crew" %}
+            <title>😍 Путешествия собирают команду</title>
+            {% endif %}
+            {% if model.pageable.filter == "close" %}
+        <title>😍 У Путешествий мест нет</title>
+        {% endif %}
+            {% if model.pageable.filter == "start" %}
+            <title>😍 Начатые Путешествия</title>
+            {% endif %}
+            {% if model.pageable.filter == "end" %}
+            <title>😍 Законченные Путешествия</title>
+            {% endif %}
 
+        {% else %}
+        <title>😱 Нет путешествий</title>
+        {% endif %}
+    {% endblock %}
+
+    {% macro myselect( name,enums,dict,filter )%}
+            <select name="{{ name }}" class="columns">
+                <option value="{{filter}}">{{ dict[filter] }}</option>
+                {%for enum in enums %}
+                {% if enum != filter  %}
+                    <option value="{{enum}}">{{  dict[enum]}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+
+    {% endmacro %}
 {% block content %}
+<div class="grid-x grid-padding-x">
+    <div class="medium-3 cell">
+        <form method="get">
+            <label class="columns">Фильтрация</label>
+            {{ myselect("filter",["all","open","crew","close","start","end","cancel"],
+            {"all":"Все",
+            "open": "Открыто для набора посетителей",
+            "crew": "Набирают команду",
+            "close":"Заполненные",
+            "start":"Начатые",
+            "end":"Законченные",
+            "cancel": "Отмененные"},
+            model.pageable.filter )}}
+            <label class="columns">Сортировка</label>
+
+            {{ myselect("sort",["no","name","status","start","end"],
+            {"no":"Без сортировки",
+            "name": "По названию",
+            "status": "По статусу",
+            "start":"По дате начала",
+            "end":"По дате окончания"},
+            model.pageable.sort )}}
+
+            <div class="medium-6 cell">
+                <input type="submit" value="Применить" class="button">
+            </div>
+        </form>
+    </div>
+</div>
     {% for travel in model.travels %}
     <div class="grid-x grid-padding-x">
     <div class="medium-12 cell">
+
         <div class="callout">
             <div class="grid-x grid-padding-x">
                 <div class="medium-5 cell">
@@ -31,12 +100,12 @@
                     </div>
                     {% endfor %}
                 </div>
-            </div>{% if model.currentUser is not null and travel.first.status == "Открыто для набора посетителей" %}
+            </div>{% if currentUser is not null and travel.first.status == "Открыто для набора посетителей" and Permission.visit %}
                     <form method="post" action="/visit/create/{{ travel.first.id }}">
                         <input type="submit" value="Записаться" class="button">
                     </form>
                     {% endif %}
-            {% if model.currentUser is not null and model.num[model.currentUser.role] >=5 %}
+            {% if currentUser is not null and Permission.travelCrew %}
                 <div class="grid-x grid-padding-x">
                     <div class="medium-2 cell">
                         <a class="button" href="/invitation/{{ travel.first.id }}/create">Пригласить</a>
@@ -50,28 +119,38 @@
     </div>
     </div>
         {% endfor %}
+{% if  model.travels.size() == 0 %}
+<div class="grid-container">
+    <div class="medium-12 cell">
+
+        <h4>Нет таких путешествий</h4>
+    </div>
+</div>
+{% endif %}
+{% if  model.travels.size() != 0 %}
 <nav aria-label="Pagination">
     <ul class="pagination text-center">
         {% if model.pageable.page == 1 %}
             <li class="pagination-previous disabled">Previous</li>
             {% else %}
-            <li class="pagination-previous active"><a href="?page={{ model.pageable.page - 1}}">Previous</a></li>
+            <li class="pagination-previous active"><a href="?filter={{ model.pageable.filter }}&&page={{ model.pageable.page - 1}}">Previous</a></li>
         {% endif %}
         {% if model.pageable.maxpage <=10%}
             {% for page in range(1,model.pageable.maxpage)%}
                 {% if model.pageable.page == page%}
                     <li class="current"><span class="show-for-sr">You're on page</span> {{ page }}</li>
                     {%else%}
-                    <li><a href="?page={{ page }}" aria-label="Page {{ page }}">{{ page }}</a></li>
+                    <li><a href="?filter={{ model.pageable.filter }}&&page={{ page }}" aria-label="Page {{ page }}">{{ page }}</a></li>
                 {% endif %}
             {%endfor %}
         {% endif %}
         {% if model.pageable.page == model.pageable.maxpage %}
             <li class="pagination-next disabled">Next</li>
             {% else %}
-            <li class="pagination-next"><a href="?page={{ model.pageable.page + 1 }}" aria-label="Next page">Next</a></li>
+            <li class="pagination-next"><a href="?filter={{ model.pageable.filter }}&&page={{ model.pageable.page + 1 }}" aria-label="Next page">Next</a></li>
         {% endif%}
-
     </ul>
 </nav>
+{% endif %}
+
 {% endblock %}

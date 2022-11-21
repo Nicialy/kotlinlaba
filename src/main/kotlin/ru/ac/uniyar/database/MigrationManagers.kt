@@ -5,7 +5,7 @@ import org.flywaydb.core.Flyway;
 fun performMigrations() {
     val flyway = Flyway
         .configure()
-        .locations("ru/ac/uniyar/models/db/migrations")
+        .locations("ru/ac/uniyar/migrations")
         .validateMigrationNaming(true)
         .dataSource(H2DatabaseManager.JDBC_CONNECTION, null, null)
         .load()

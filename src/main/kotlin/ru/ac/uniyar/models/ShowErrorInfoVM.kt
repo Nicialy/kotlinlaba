@@ -1,6 +1,6 @@
 package ru.ac.uniyar.models
 
 import org.http4k.core.Uri
-import ru.ac.uniyar.database.DBUserEntity
+import org.http4k.template.ViewModel
 
-class ShowErrorInfoVM(val uri: Uri, currentUser: DBUserEntity?, message: String?) : AuthUserVM(currentUser)
+class ShowErrorInfoVM(val uri: Uri, val message: String?) : ViewModel

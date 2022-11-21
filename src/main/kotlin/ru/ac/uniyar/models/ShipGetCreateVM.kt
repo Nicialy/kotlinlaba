@@ -1,6 +1,6 @@
 package ru.ac.uniyar.models
 
 import org.http4k.lens.MultipartForm
-import ru.ac.uniyar.database.DBUserEntity
+import org.http4k.template.ViewModel
 
-class ShipGetCreateVM(currentUser: DBUserEntity?, val form: MultipartForm = MultipartForm()) : AuthUserVM(currentUser)
+class ShipGetCreateVM(val form: MultipartForm = MultipartForm()) : ViewModel

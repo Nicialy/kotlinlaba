@@ -5,14 +5,12 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
-import org.http4k.core.then
 import org.http4k.lens.BiDiLens
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
 import ru.ac.uniyar.database.DBUserEntity
-import ru.ac.uniyar.filters.roleBiggerFilter
 import ru.ac.uniyar.quires.CrewDb
 import ru.ac.uniyar.utils.BadRequestException
 
@@ -21,7 +19,7 @@ fun crewRoute(
     crew: CrewDb
 ): RoutingHttpHandler =
     routes(
-        "/delete/{number}" bind Method.POST to roleBiggerFilter(currentUserLens, 5).then(CrewDelete(currentUserLens, crew))
+        "/delete/{number}" bind Method.POST to CrewDelete(currentUserLens, crew)
     )
 
 class CrewDelete(

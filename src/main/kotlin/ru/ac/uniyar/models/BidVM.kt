@@ -1,6 +1,7 @@
 package ru.ac.uniyar.models
 
+import org.http4k.template.ViewModel
 import ru.ac.uniyar.database.DBBidEntity
-import ru.ac.uniyar.database.DBUserEntity
+import ru.ac.uniyar.utils.Pageable
 
-class BidVM(currentUser: DBUserEntity?, val uri: String, val bids: List<DBBidEntity> = listOf()) : AuthUserVM(currentUser)
+class BidVM(val bids: List<DBBidEntity>, val pageable: Pageable) : ViewModel

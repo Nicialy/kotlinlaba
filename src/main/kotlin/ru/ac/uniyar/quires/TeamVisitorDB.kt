@@ -7,8 +7,6 @@ import org.ktorm.entity.count
 import org.ktorm.entity.filter
 import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
-import org.ktorm.entity.toList
-import ru.ac.uniyar.database.DBTeamVisitorEntity
 import ru.ac.uniyar.database.TeamVisitorTable
 import ru.ac.uniyar.database.TravelTable
 import ru.ac.uniyar.utils.CountShipException
@@ -17,9 +15,6 @@ import ru.ac.uniyar.utils.NotFoundException
 import ru.ac.uniyar.utils.UserFoundException
 
 class TeamVisitorDB(private val database: Database) {
-    fun getMyVisit(user_id: Long): List<DBTeamVisitorEntity> {
-        return database.sequenceOf(TeamVisitorTable).filter { it.user_id eq user_id }.toList()
-    }
     fun goVisit(travelId: Long, userId: Long) {
         database.useTransaction {
             val travel = database.sequenceOf(TravelTable).find { it.id eq travelId } ?: throw NotFoundException("Не найдено")

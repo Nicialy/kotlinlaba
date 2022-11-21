@@ -9,7 +9,9 @@
             {% endif %}>
     {% endmacro %}
 
-
+    {% block "post" %}
+    <title>🛳 Создаем кораблик</title>
+    {% endblock %}
 {% block content %}
 <form method="post" enctype="multipart/form-data">
     <div class="grid-x grid-padding-x">

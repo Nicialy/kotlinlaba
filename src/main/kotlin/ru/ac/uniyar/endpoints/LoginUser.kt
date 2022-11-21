@@ -2,6 +2,7 @@ package ru.ac.uniyar.endpoints
 
 import org.http4k.core.Body
 import org.http4k.core.HttpHandler
+import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
@@ -12,24 +13,31 @@ import org.http4k.core.cookie.SameSite
 import org.http4k.core.cookie.cookie
 import org.http4k.core.cookie.invalidateCookie
 import org.http4k.core.with
-import org.http4k.lens.BiDiBodyLens
-import org.http4k.lens.BiDiLens
 import org.http4k.lens.FormField
 import org.http4k.lens.Invalid
 import org.http4k.lens.Validator
 import org.http4k.lens.nonEmptyString
 import org.http4k.lens.webForm
-import org.http4k.template.ViewModel
-import ru.ac.uniyar.database.DBUserEntity
+import org.http4k.routing.RoutingHttpHandler
+import org.http4k.routing.bind
+import org.http4k.routing.routes
 import ru.ac.uniyar.filters.JwtTools
 import ru.ac.uniyar.models.LoginVM
+import ru.ac.uniyar.models.template.ContextAwareViewRender
 import ru.ac.uniyar.quires.UsersDb
 import ru.ac.uniyar.utils.PasswordNotException
 import ru.ac.uniyar.utils.UserNotException
 
+fun loginRoute(
+    htmlView: ContextAwareViewRender,
+    jwtTools: JwtTools,
+    user: UsersDb
+): RoutingHttpHandler = routes(
+    "/" bind Method.GET to LoginHandlerGet(htmlView),
+    "/" bind Method.POST to LoginUser(htmlView, jwtTools, user)
+)
 class LoginUser(
-    private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    private val htmlView: BiDiBodyLens<ViewModel>,
+    private val htmlView: ContextAwareViewRender,
     private val jwtTools: JwtTools,
     private val user: UsersDb
 ) : HttpHandler {
@@ -44,7 +52,6 @@ class LoginUser(
     }
 
     override fun invoke(request: Request): Response {
-        val currentUser = currentUserLens(request)
         var webForm = loginFormLens(request)
         try {
             if (webForm.errors.isEmpty()) {
@@ -62,17 +69,20 @@ class LoginUser(
             val newErrors = webForm.errors + Invalid(passwordFormLens.meta.copy(description = "password bad"))
             webForm = webForm.copy(errors = newErrors)
         }
-        return Response(OK).with(htmlView of LoginVM(currentUser, webForm))
+        return Response(OK).with(htmlView(request) of LoginVM(webForm))
     }
 }
 
-fun loginHandlerGet(currentUserLens: BiDiLens<Request, DBUserEntity?>, htmlView: BiDiBodyLens<ViewModel>): HttpHandler = {
-    val currentUser = currentUserLens(it)
-    Response(Status.OK).with(htmlView of LoginVM(currentUser))
+class LoginHandlerGet(
+    private val htmlView: ContextAwareViewRender
+) : HttpHandler {
+    override fun invoke(request: Request): Response {
+        return Response(OK).with(htmlView(request) of LoginVM())
+    }
 }
 class LogOutUser : HttpHandler {
     override fun invoke(request: Request): Response {
-        return Response(Status.FOUND)
+        return Response(FOUND)
             .header("Location", "/")
             .invalidateCookie("token")
     }

@@ -2,4 +2,4 @@ package ru.ac.uniyar.models
 
 import org.http4k.template.ViewModel
 
-class HomePageVM() : ViewModel
+class BidCreateVM() : ViewModel

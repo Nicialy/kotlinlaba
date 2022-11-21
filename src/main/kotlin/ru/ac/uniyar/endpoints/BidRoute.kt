@@ -8,64 +8,97 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.core.with
-import org.http4k.lens.BiDiBodyLens
 import org.http4k.lens.BiDiLens
 import org.http4k.lens.FormField
+import org.http4k.lens.Query
 import org.http4k.lens.Validator
+import org.http4k.lens.composite
+import org.http4k.lens.int
 import org.http4k.lens.nonEmptyString
+import org.http4k.lens.string
 import org.http4k.lens.webForm
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
-import org.http4k.template.ViewModel
 import ru.ac.uniyar.database.DBUserEntity
-import ru.ac.uniyar.filters.roleBiggerFilter
+import ru.ac.uniyar.filters.roleFilter
+import ru.ac.uniyar.models.BidCreateVM
 import ru.ac.uniyar.models.BidVM
+import ru.ac.uniyar.models.template.ContextAwareViewRender
 import ru.ac.uniyar.quires.BidDB
 import ru.ac.uniyar.utils.BadRequestException
-import ru.ac.uniyar.utils.NotAuthException
+import ru.ac.uniyar.utils.Pageable
+import ru.ac.uniyar.utils.RolePermission
 
 fun BidRoute(
     currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    htmlView: BiDiBodyLens<ViewModel>,
+    currentRolePermissionLens: BiDiLens<Request, RolePermission>,
+    htmlView: ContextAwareViewRender,
     bid: BidDB
 ): RoutingHttpHandler =
     routes(
-        "/create" bind Method.GET to roleBiggerFilter(currentUserLens, 1).then(BidCreateGet(currentUserLens, htmlView, bid)),
-        "/create" bind Method.POST to roleBiggerFilter(currentUserLens, 1).then(BidCreatePost(currentUserLens, htmlView, bid)),
-        "/all" bind Method.GET to roleBiggerFilter(currentUserLens, 6).then(BidsGet(currentUserLens, htmlView, bid)),
-        "/accept/{number}" bind Method.POST to roleBiggerFilter(currentUserLens, 6).then(BidAccept(currentUserLens, htmlView, bid)),
-        "/cancel/{number}" bind Method.POST to roleBiggerFilter(currentUserLens, 6).then(BidCancel(currentUserLens, htmlView, bid)),
-        "/delete/{number}" bind Method.POST to roleBiggerFilter(currentUserLens, 1).then(BidDelete(currentUserLens, htmlView, bid))
+        "/create" bind Method.GET to roleFilter(currentRolePermissionLens, "bidCreate").then(BidCreateGet(htmlView)),
+        "/create" bind Method.POST to roleFilter(currentRolePermissionLens, "bidCreate").then(BidCreatePost(currentUserLens, htmlView, bid)),
+        "/all" bind Method.GET to roleFilter(currentRolePermissionLens, "bidAccept").then(BidsGet(htmlView, bid)),
+        "/accept/{number}" bind Method.POST to roleFilter(currentRolePermissionLens, "bidAccept").then(BidAccept(bid)),
+        "/cancel/{number}" bind Method.POST to roleFilter(currentRolePermissionLens, "bidAccept").then(BidCancel(bid)),
+        "/delete/{number}" bind Method.POST to roleFilter(currentRolePermissionLens, "bidCreate").then(BidDelete(currentUserLens, bid))
     )
 
 class BidsGet(
-    private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    private val htmlView: BiDiBodyLens<ViewModel>,
+    private val htmlView: ContextAwareViewRender,
     private val bid: BidDB
 ) : HttpHandler {
+    companion object {
+        val pageable = Query.composite {
+            Pageable(
+                string().defaulted("sortAscending", "no")(it),
+                int().defaulted("page", 1)(it),
+                int().defaulted("size", 2)(it),
+                int().defaulted("maxpage", 0)(it),
+                string().defaulted("filter", "new")(it)
+            )
+        }
+        fun filterSwitch(filter: String): String {
+            return when (filter) {
+                "new" -> "В ожидании"
+                "accept" -> "Одобрено"
+                "cancel" -> "Отказано"
+                else -> {
+                    throw BadRequestException("Не верный фильтр")
+                }
+            }
+        }
+    }
     override fun invoke(request: Request): Response {
-        val currentUser = currentUserLens(request)
-        val uriStr = request.uri.toString()
-        val bidGetList = bid.getAllBid("В ожидании")
-        return Response(Status.OK).with(htmlView of BidVM(currentUser, uriStr, bidGetList))
+        var pagination = pageable(request)
+        if ((pagination.size <= 0) or (pagination.page <= 0)) {
+            throw BadRequestException("Плохиец цифры")
+        }
+        val filter = filterSwitch(pagination.filter)
+        val bidCount = bid.getCountBid(filter)
+        val ftop = (bidCount / pagination.size)
+        pagination.maxpage = if (bid.getCountBid(filter) % pagination.size == 0) ftop else ftop + 1
+        if ((bidCount != 0) and (pagination.page == 1)) {
+            if (pagination.page > pagination.maxpage) {
+                throw BadRequestException("Плохой запрос")
+            }
+        }
+        val bidGetList = bid.getAllBid(filter, pagination.page, pagination.size)
+        return Response(Status.OK).with(htmlView(request) of BidVM(bidGetList, pagination))
     }
 }
 class BidCreateGet(
-    private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    private val htmlView: BiDiBodyLens<ViewModel>,
-    private val bid: BidDB
+    private val htmlView: ContextAwareViewRender,
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        val currentUser = currentUserLens(request)
-        val uriStr = request.uri.toString()
-        return Response(Status.OK).with(htmlView of BidVM(currentUser, uriStr))
+        return Response(Status.OK).with(htmlView(request) of BidCreateVM())
     }
 }
 class BidCreatePost(
     private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    private val htmlView: BiDiBodyLens<ViewModel>,
+    private val htmlView: ContextAwareViewRender,
     private val bid: BidDB
 ) : HttpHandler {
     companion object {
@@ -80,17 +113,14 @@ class BidCreatePost(
     override fun invoke(request: Request): Response {
         val currentUser = currentUserLens(request)
         val webForm = CreateBidFormLens(request)
-        val uriStr = request.uri.toString()
         if (webForm.errors.isEmpty()) {
             bid.createBid(currentUser!!.id, roleFormLens(webForm), descriptionFormLens(webForm))
-            return Response(Status.OK).header("Location", "/")
+            return Response(Status.FOUND).header("Location", "/")
         }
-        return Response(Status.OK).with(htmlView of BidVM(currentUser, uriStr))
+        return Response(Status.OK).with(htmlView(request) of BidCreateVM())
     }
 }
 class BidAccept(
-    private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    private val htmlView: BiDiBodyLens<ViewModel>,
     private val bid: BidDB
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
@@ -101,12 +131,9 @@ class BidAccept(
 }
 
 class BidCancel(
-    private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    private val htmlView: BiDiBodyLens<ViewModel>,
     private val bid: BidDB
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        val currentUser = currentUserLens(request)
         val id = request.path("number").orEmpty().toLong()
         bid.cancelBid(id)
         return Response(Status.FOUND).header("Location", "/bid/all")
@@ -114,13 +141,12 @@ class BidCancel(
 }
 class BidDelete(
     private val currentUserLens: BiDiLens<Request, DBUserEntity?>,
-    private val htmlView: BiDiBodyLens<ViewModel>,
     private val bid: BidDB
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
         val currentUser = currentUserLens(request)
         val id = request.path("number").orEmpty().toLong()
-        currentUser!!.id?.let { bid.delMyBid(it, id) } ?: NotAuthException("Не авторизован")
+        currentUser!!.id?.let { bid.delMyBid(it, id) }
         return Response(Status.FOUND).header("Location", "/bid/all")
     }
 }

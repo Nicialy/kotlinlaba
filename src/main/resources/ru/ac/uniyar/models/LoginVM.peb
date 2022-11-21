@@ -9,7 +9,9 @@
              value="{{ form.fields[name] | first }}"
     {% endif %}>
 {% endmacro %}
-
+    {% block "post" %}
+    <title>😎 Входим в Шторм!</title>
+    {% endblock %}
 {% block content %}
     <form method="post">
     <div class="grid-x grid-padding-x">

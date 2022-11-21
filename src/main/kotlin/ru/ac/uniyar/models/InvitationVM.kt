@@ -1,9 +1,10 @@
 package ru.ac.uniyar.models
 
+import org.http4k.template.ViewModel
 import ru.ac.uniyar.database.DBInvitationEntity
-import ru.ac.uniyar.database.DBUserEntity
+import ru.ac.uniyar.utils.Pageable
 
 class InvitationVM(
-    currentUser: DBUserEntity?,
-    val invitations: List<DBInvitationEntity>
-) : AuthUserVM(currentUser)
+    val invitations: List<DBInvitationEntity>,
+    val pageable: Pageable
+) : ViewModel

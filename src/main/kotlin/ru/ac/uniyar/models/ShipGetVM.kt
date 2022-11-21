@@ -1,6 +1,6 @@
 package ru.ac.uniyar.models
 
+import org.http4k.template.ViewModel
 import ru.ac.uniyar.database.DBShipEntity
-import ru.ac.uniyar.database.DBUserEntity
 
-class ShipGetVM(currentUser: DBUserEntity?, val ship: DBShipEntity) : AuthUserVM(currentUser)
+class ShipGetVM(val ship: DBShipEntity) : ViewModel

@@ -39,9 +39,6 @@ class UsersDb(
             set(it.role, "Посетитель")
         }
     }
-    fun fetch(id: Long): DBUserEntity {
-        return database.sequenceOf(UsersTable).filter { it.id eq id }.first()
-    }
     fun fetchUsersWithRole(travel_id: Long): List<DBUserEntity> {
         var usersList = mutableListOf<DBUserEntity>()
         database.useTransaction {

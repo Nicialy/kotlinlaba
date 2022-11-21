@@ -1,5 +1,7 @@
 {% extends "./layout.peb" %}
-
+    {% block "post" %}
+    <title>🤩 Кораблик</title>
+    {% endblock %}
 {% block content %}
 <div class="grid-x grid-padding-x">
     <div class="medium-12 cell">
