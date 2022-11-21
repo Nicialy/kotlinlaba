@@ -110,7 +110,6 @@ class InvitationCreatePost(
     override fun invoke(request: Request): Response {
         val travelId = request.path("number")?.toLong() ?: throw BadRequestException("Не число")
         val userId = request.path("user_id")?.toLong() ?: throw BadRequestException("Не число")
-        // TODO проверить что то пользователь отправил
         invitation.createInvitation(travelId, userId)
         return Response(Status.FOUND).header("Location", "/invitation/$travelId/create")
     }

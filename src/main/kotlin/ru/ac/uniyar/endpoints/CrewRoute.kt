@@ -29,7 +29,7 @@ class CrewDelete(
     override fun invoke(request: Request): Response {
         val id = request.path("number")?.toLong() ?: throw BadRequestException("Не число")
         val currentUser = currentUserLens(request)
-        crew.crewDelete(id, currentUser!!.id)
-        return Response(Status.NO_CONTENT).header("Location", request.uri.toString())
+        val travelId = crew.crewDelete(id, currentUser!!.id)
+        return Response(Status.FOUND).header("Location", "/invitation/$travelId/create")
     }
 }
