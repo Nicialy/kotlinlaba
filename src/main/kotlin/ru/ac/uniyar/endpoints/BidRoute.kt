@@ -146,7 +146,7 @@ class BidDelete(
     override fun invoke(request: Request): Response {
         val currentUser = currentUserLens(request)
         val id = request.path("number").orEmpty().toLong()
-        currentUser!!.id?.let { bid.delMyBid(it, id) }
+        bid.delMyBid(currentUser!!.id, id)
         return Response(Status.FOUND).header("Location", "/bid/all")
     }
 }

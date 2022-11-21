@@ -61,7 +61,7 @@ suspend fun main() {
     )
 
     val printingApp: HttpHandler = ServerFilters.InitialiseRequestContext(contexts)
-        .then(ExceptionHandlingFilter(currentUserLens, htmlView)).then(
+        .then(ExceptionHandlingFilter(htmlView)).then(
             authFilter(currentUserLens, currentUserPermission, fetchUserWithToken, jwtTools)
         ).then(
             router.invoke()

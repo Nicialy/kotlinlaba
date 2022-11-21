@@ -105,7 +105,7 @@
                         <input type="submit" value="Записаться" class="button">
                     </form>
                     {% endif %}
-            {% if currentUser is not null and Permission.travelCrew %}
+            {% if currentUser is not null and Permission.travelCrew and travel.first.status == "Идет набор команды" %}
                 <div class="grid-x grid-padding-x">
                     <div class="medium-2 cell">
                         <a class="button" href="/invitation/{{ travel.first.id }}/create">Пригласить</a>

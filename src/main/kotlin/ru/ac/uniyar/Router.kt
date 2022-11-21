@@ -55,7 +55,7 @@ class Router(
         "/travel" bind travelRoute(currentUserLens, currentRolePermissionLens, htmlView, travel, ship),
         "/bid" bind BidRoute(currentUserLens, currentRolePermissionLens, htmlView, bid),
         "/invitation" bind roleFilter(currentRolePermissionLens, "invitation").then(InvitationRoute(currentUserLens, htmlView, crew, invitation, user)),
-        "/crew" bind crewRoute(currentUserLens, currentRolePermissionLens, crew),
+        "/crew" bind crewRoute(currentUserLens, crew),
         "/visit" bind roleFilter(currentRolePermissionLens, "visit").then(teamVisitorRoute(currentUserLens, teamVis, currentRolePermissionLens)),
 
         "/photo/{name}" bind Method.GET to PhotoGet(),
