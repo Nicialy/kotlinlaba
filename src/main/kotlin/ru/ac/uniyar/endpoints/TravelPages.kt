@@ -83,9 +83,11 @@ class TravelCreatePost(
     override fun invoke(request: Request): Response {
         val currentUser = currentUserLens(request)
         var webForm = CreateTravelFormLens(request)
-        if (startFormLens(webForm) >= endFormLens(webForm)) {
-            val newErrors = webForm.errors + Invalid(startFormLens.meta.copy(description = "bad date"))
-            webForm = webForm.copy(errors = newErrors)
+        if (webForm.errors.isEmpty()) {
+            if (startFormLens(webForm) >= endFormLens(webForm)) {
+                val newErrors = webForm.errors + Invalid(startFormLens.meta.copy(description = "bad date"))
+                webForm = webForm.copy(errors = newErrors)
+            }
         }
         if (webForm.errors.isEmpty()) {
             val id = travel.createTravel(

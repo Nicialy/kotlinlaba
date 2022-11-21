@@ -4,7 +4,7 @@
     {% endblock %}
 {% block content %}
     {% if model.myshipsList is not empty %}
-     <p>Количество свободных мест: {{model.myshipsList.size}}
+
         {% endif %}
         {% for ship in model.myshipsList %}
         <div class="grid-x grid-padding-x">
